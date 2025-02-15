@@ -4,7 +4,11 @@
 #include <cublas_v2.h>
 #include <cuda_runtime_api.h> // cudaMalloc, cudaMemcpy, etc.
 #include <cusparse.h>         // cusparseSpMM
+#include <iostream>
+#include <ostream>
+#include <random>
 #include <time.h>
+#include <unordered_set>
 #include <vector>
 
 #include "benchmark/benchmark.h"
@@ -48,13 +52,26 @@
 // Function to generate random sparse matrix with given sparsity
 void generate_sparse_matrix(float* matrix, int rows, int cols, float sparsity, int seed = 0) {
     srand(seed);
-    for (int i = 0; i < rows * cols; i++) {
-        float rand_val = (float)rand() / RAND_MAX;
-        if (rand_val < sparsity) {
-            matrix[i] = 0.0f;
-        } else {
-            matrix[i] = (float)rand() / RAND_MAX;
+    auto total_nnz = (int)(rows * cols * (1-sparsity));
+    // generate random unique integer indices between 0 and rows*cols
+    std::unordered_set<int> unique_numbers;
+    std::vector<int> indices;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> dis(0, rows * cols - 1);
+
+    while (unique_numbers.size() < total_nnz) {
+        int num = dis(gen);
+        if (unique_numbers.insert(num).second) {
+            indices.push_back(num);
         }
+    }
+    // fill the matrix with random values
+    for (int i = 0; i < rows * cols; i++) {
+        matrix[i] = 0.0f;
+    }
+    for (int i = 0; i < total_nnz; i++) {
+        matrix[indices[i]] = (float)rand() / RAND_MAX;
     }
 }
 
@@ -157,7 +174,8 @@ static void BM_cuBLAS_CUDA(benchmark::State &state) {
     const char *device_name = prop.name;
 
     // add gpu name to the log
-    state.SetLabel(device_name);
+    // add sparsity to the log
+    state.SetLabel("Arch: " + std::string(device_name) + " Sparsity: " + std::to_string(sparsity) + "%");
     for (auto _: state) {
         float iteration_time_ms = 0.0f;
         MeasureGEMMPerformance(cublas_handle, m, n, k, d_A, d_B, d_C,
@@ -226,6 +244,7 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
      int nnz;
      dense_to_csr(h_A, m, k, &h_csrVal, &h_csrRowPtr, &h_csrColInd, &nnz);
 
+
      // Allocate device memory for sparse matrix
      float *d_csrVal;
      int *d_csrRowPtr, *d_csrColInd;
@@ -270,8 +289,8 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
     cudaGetDeviceProperties(&prop, 0);
     const char *device_name = prop.name;
 
-    // add gpu name to the log
-    state.SetLabel(device_name);
+    // add sparsity to the log
+    state.SetLabel("Arch: " + std::string(device_name) + " Sparsity: " + std::to_string(sparsity) + "%");
 
     for (auto _: state) {
         float iteration_time_ms = 0.0f;
@@ -328,18 +347,19 @@ const int K = 1024;
 
 // Register the function as a benchmark
 
-
-BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
-    ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
-    ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
-    ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
-    ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->Unit(benchmark::kMillisecond);
-
 BENCHMARK(BM_cuBLAS_CUDA)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
     ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
     ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
     ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
     ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
+    ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
+    ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
+    ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
+    ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->ArgNames({"M", "N", "K", "Sparsity"})->Unit(benchmark::kMillisecond);
+
+
 
 // Run the benchmark
 BENCHMARK_MAIN();
