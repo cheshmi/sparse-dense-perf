@@ -4,6 +4,7 @@
 #include <cublas_v2.h>
 #include <cuda_runtime_api.h> // cudaMalloc, cudaMemcpy, etc.
 #include <cusparse.h>         // cusparseSpMM
+#include <iomanip>
 #include <iostream>
 #include <ostream>
 #include <random>
@@ -175,7 +176,7 @@ static void BM_cuBLAS_CUDA(benchmark::State &state) {
 
     // add gpu name to the log
     // add sparsity to the log
-    state.SetLabel("Arch: " + std::string(device_name) + " Sparsity: " + std::to_string(sparsity) + "%");
+    state.SetLabel("Arch:" + std::string(device_name));
     for (auto _: state) {
         float iteration_time_ms = 0.0f;
         MeasureGEMMPerformance(cublas_handle, m, n, k, d_A, d_B, d_C,
@@ -290,7 +291,7 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
     const char *device_name = prop.name;
 
     // add sparsity to the log
-    state.SetLabel("Arch: " + std::string(device_name) + " Sparsity: " + std::to_string(sparsity) + "%");
+    state.SetLabel("Arch:" + std::string(device_name));
 
     for (auto _: state) {
         float iteration_time_ms = 0.0f;
@@ -344,22 +345,29 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
 const int M = 2048;
 const int N = 2048;
 const int K = 1024;
+const int iters = 100;
 
 // Register the function as a benchmark
 
-BENCHMARK(BM_cuBLAS_CUDA)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
-    ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
-    ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
-    ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
-    ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_cuBLAS_CUDA)->Args({M, N, 32, 50})->Args({M, N, 64, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->
+ArgNames({"M", "N", "K", "Sparsity"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
 
-BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
-    ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
-    ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
-    ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
-    ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->ArgNames({"M", "N", "K", "Sparsity"})->Unit(benchmark::kMillisecond);
+BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, 32, 50})->Args({M, N, 64, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})
+    ->Args({M, N, 32, 60})->Args({M, N, 64, 50})->Args({M, N, 128, 60})->Args({M, N, 512, 60})
+    ->Args({M, N, 32, 70})->Args({M, N, 64, 50})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
+    ->Args({M, N, 32, 80})->Args({M, N, 64, 50})->Args({M, N, 128, 80})->Args({M, N, 512, 80})
+    ->Args({M, N, 32, 90})->Args({M, N, 64, 50})->Args({M, N, 128, 90})->Args({M, N, 512, 90})
+    ->Args({M, N, 32, 95})->Args({M, N, 64, 50})->Args({M, N, 128, 95})->Args({M, N, 512, 95})
+    ->Args({M, N, 32, 99})->Args({M, N, 64, 50})->Args({M, N, 128, 99})->Args({M, N, 512, 99})
+    ->ArgNames({"M", "N", "K", "Sparsity"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
+// NOTE: manual time is reported in ms and as real time (not CPU time)
 
 
 
 // Run the benchmark
-BENCHMARK_MAIN();
+//BENCHMARK_MAIN();
+int main(int argc, char** argv) {
+    benchmark::Initialize(&argc, argv);
+    benchmark::RunSpecifiedBenchmarks();
+    return 0;
+}
