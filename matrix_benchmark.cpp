@@ -353,12 +353,12 @@ BENCHMARK(BM_cuBLAS_CUDA)->Args({M, N, 32, 50})->Args({M, N, 64, 50})->Args({M, 
 ArgNames({"M", "N", "K", "Sparsity"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
 
 BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, 32, 50})->Args({M, N, 64, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})
-    ->Args({M, N, 32, 60})->Args({M, N, 64, 50})->Args({M, N, 128, 60})->Args({M, N, 512, 60})
-    ->Args({M, N, 32, 70})->Args({M, N, 64, 50})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
-    ->Args({M, N, 32, 80})->Args({M, N, 64, 50})->Args({M, N, 128, 80})->Args({M, N, 512, 80})
-    ->Args({M, N, 32, 90})->Args({M, N, 64, 50})->Args({M, N, 128, 90})->Args({M, N, 512, 90})
-    ->Args({M, N, 32, 95})->Args({M, N, 64, 50})->Args({M, N, 128, 95})->Args({M, N, 512, 95})
-    ->Args({M, N, 32, 99})->Args({M, N, 64, 50})->Args({M, N, 128, 99})->Args({M, N, 512, 99})
+    ->Args({M, N, 32, 60})->Args({M, N, 64, 60})->Args({M, N, 128, 60})->Args({M, N, 512, 60})
+    ->Args({M, N, 32, 70})->Args({M, N, 64, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
+    ->Args({M, N, 32, 80})->Args({M, N, 64, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})
+    ->Args({M, N, 32, 90})->Args({M, N, 64, 90})->Args({M, N, 128, 90})->Args({M, N, 512, 90})
+    ->Args({M, N, 32, 95})->Args({M, N, 64, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})
+    ->Args({M, N, 32, 99})->Args({M, N, 64, 99})->Args({M, N, 128, 99})->Args({M, N, 512, 99})
     ->ArgNames({"M", "N", "K", "Sparsity"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
 // NOTE: manual time is reported in ms and as real time (not CPU time)
 
