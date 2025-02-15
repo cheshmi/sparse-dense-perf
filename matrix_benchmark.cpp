@@ -184,6 +184,18 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
     auto k = state.range(2);
     auto sparsity = state.range(3);
     float sparsity_ratio = sparsity / 100.0f;
+    // cudaError_t cudaStatus = cudaSetDevice(0);
+    // if (cudaStatus != cudaSuccess) {
+    //     printf("CUDA context creation failed with error: %s\n", cudaGetErrorString(cudaStatus));
+    //     return;
+    // }
+    // Check CUDA context creation using cudaFree(0)
+    cudaError_t cudaStatus = cudaFree(0);
+    if (cudaStatus != cudaSuccess) {
+        printf("CUDA context creation failed with error: %s\n", cudaGetErrorString(cudaStatus));
+        return;
+    }
+
     // Initialize CUDA handles
     cusparseHandle_t cusparse_handle;
     if (cusparseCreate(&cusparse_handle) != CUSPARSE_STATUS_SUCCESS) {
@@ -241,14 +253,14 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
                                       d_csrRowPtr, d_csrColInd, d_csrVal,
                                       CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                       CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F));
-     CHECK_CUSPARSE(cusparseCreateDnMat(&matB, k, n, n, d_B,
+     CHECK_CUSPARSE(cusparseCreateDnMat(&matB, k, n, k, d_B,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
-     CHECK_CUSPARSE(cusparseCreateDnMat(&matC, m, n, n, d_C,
+     CHECK_CUSPARSE(cusparseCreateDnMat(&matC, m, n, m, d_C,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
 
      // Temporary buffer
      size_t bufferSize;
-     void* dBuffer = NULL;
+     void* dBuffer = nullptr;
      CHECK_CUSPARSE(cusparseSpMM_bufferSize(cusparse_handle,
                                             CUSPARSE_OPERATION_NON_TRANSPOSE, CUSPARSE_OPERATION_NON_TRANSPOSE,
                                             &alpha, matA, matB, &beta, matC,
@@ -287,7 +299,7 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
      CHECK_CUSPARSE(cusparseDestroySpMat(matA));
      CHECK_CUSPARSE(cusparseDestroyDnMat(matB));
      CHECK_CUSPARSE(cusparseDestroyDnMat(matC));
-     CHECK_CUDA(cudaFree(dBuffer));
+     //CHECK_CUDA(cudaFree(dBuffer));
 
 
      // Clean up sparse matrix resources
@@ -310,13 +322,24 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
 
 
 // Define constants
-const int M = 1024;
-const int N = 1024;
+const int M = 2048;
+const int N = 2048;
 const int K = 1024;
 
 // Register the function as a benchmark
-BENCHMARK(BM_cuBLAS_CUDA)->Args({M, N, K, 50})->Args({M, N, K, 60})->Args({M, N, K, 70})->Args({M, N, K, 80})->Args({M, N, K, 90})->Args({M, N, K, 95})->Args({M, N, K, 99})->Unit(benchmark::kMillisecond);
-BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, K, 50})->Args({M, N, K, 60})->Args({M, N, K, 70})->Args({M, N, K, 80})->Args({M, N, K, 90})->Args({M, N, K, 95})->Args({M, N, K, 99})->Unit(benchmark::kMillisecond);
+
+
+BENCHMARK(BM_CUSPARSE_SPMM)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
+    ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
+    ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
+    ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
+    ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->Unit(benchmark::kMillisecond);
+
+BENCHMARK(BM_cuBLAS_CUDA)->Args({M, N, 32, 50})->Args({M, N, 128, 50})->Args({M, N, 512, 50})->Args({M, N, 32, 60})
+    ->Args({M, N, 128, 60})->Args({M, N, 512, 60})->Args({M, N, 32, 70})->Args({M, N, 128, 70})->Args({M, N, 512, 70})
+    ->Args({M, N, 32, 80})->Args({M, N, 128, 80})->Args({M, N, 512, 80})->Args({M, N, 32, 90})->Args({M, N, 128, 90})
+    ->Args({M, N, 512, 90})->Args({M, N, 32, 95})->Args({M, N, 128, 95})->Args({M, N, 512, 95})->Args({M, N, 32, 99})
+    ->Args({M, N, 128, 99})->Args({M, N, 512, 99})->Unit(benchmark::kMillisecond);
 
 // Run the benchmark
 BENCHMARK_MAIN();
