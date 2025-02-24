@@ -70,11 +70,37 @@ set_target_properties(matrix_benchmark
         RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 
+############# SpTRSV ################
+# Create executable
+add_executable(sptrsv_benchmark sptrsv_benchmark.cpp)
+
+
+target_include_directories(sptrsv_benchmark
+        PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+)
+
+# Link CUDA libraries
+target_link_libraries(sptrsv_benchmark
+        PUBLIC
+        cudart
+        cublas
+        cusparse
+        benchmark::benchmark
+)
+
+# Set output directories
+set_target_properties(sptrsv_benchmark
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 # Optional: Enable some useful compiler warnings
 if(MSVC)
     target_compile_options(matrix_benchmark PRIVATE /W4)
+    target_compile_options(sptrsv_benchmark PRIVATE /W4)
 else()
     target_compile_options(matrix_benchmark PRIVATE -Wall -Wextra)
+    target_compile_options(sptrsv_benchmark PRIVATE -Wall -Wextra)
 endif()
 
 # Print CUDA info (optional, but useful for debugging)

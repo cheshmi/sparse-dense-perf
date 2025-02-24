@@ -181,7 +181,7 @@ static void BM_cuBLAS_CUDA(benchmark::State &state) {
         float iteration_time_ms = 0.0f;
         MeasureGEMMPerformance(cublas_handle, m, n, k, d_A, d_B, d_C,
                                alpha, beta, iteration_time_ms);
-        state.SetIterationTime(iteration_time_ms);
+        state.SetIterationTime(iteration_time_ms * 1e-3);
 
 
     }
@@ -310,7 +310,7 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
         cudaEventElapsedTime(&iteration_time_ms, start, stop);
-        state.SetIterationTime(iteration_time_ms);
+        state.SetIterationTime(iteration_time_ms*1e-3);
         cudaEventDestroy(start);
         cudaEventDestroy(stop);
     }
