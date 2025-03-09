@@ -34,7 +34,7 @@ FetchContent_MakeAvailable(googlebenchmark)
 
 # Set CUDA architectures
 # Modify these based on your GPU architecture
-set(CMAKE_CUDA_ARCHITECTURES 60 70 75 80 86)
+set(CMAKE_CUDA_ARCHITECTURES 70 75 80 86)
 
 # Set compiler flags
 if(MSVC)
@@ -48,7 +48,7 @@ link_directories(
 )
 
 # Create executable
-add_executable(matrix_benchmark matrix_benchmark.cpp)
+add_executable(matrix_benchmark matrix_benchmark.cu)
 
 
 target_include_directories(matrix_benchmark
@@ -71,11 +71,11 @@ set_target_properties(matrix_benchmark
 )
 
 # Optional: Enable some useful compiler warnings
-if(MSVC)
-    target_compile_options(matrix_benchmark PRIVATE /W4)
-else()
-    target_compile_options(matrix_benchmark PRIVATE -Wall -Wextra)
-endif()
+#if(MSVC)
+#    target_compile_options(matrix_benchmark PRIVATE /W4)
+#else()
+#    target_compile_options(matrix_benchmark PRIVATE -Wall -Wextra)
+#endif()
 
 # Print CUDA info (optional, but useful for debugging)
 message(STATUS "CUDA version: ${CMAKE_CUDA_VERSION}")

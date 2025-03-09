@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/matrix_benchmark.dir/matrix_benchmark.cu.o -o bin/matrix_benchmark   -L/usr/local/cuda/lib64  -L/usr/lib/x86_64-linux-gnu/stubs  -L/usr/lib/gcc/x86_64-linux-gnu/11  -Wl,-rpath,/usr/local/cuda/lib64 -lcudart -lcublas -lcusparse _deps/googlebenchmark-build/src/libbenchmark.a -lrt -lcudadevrt -lcudart_static -lrt -lpthread -ldl 
