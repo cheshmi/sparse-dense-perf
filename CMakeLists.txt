@@ -64,6 +64,25 @@ target_link_libraries(matrix_benchmark
         benchmark::benchmark
 )
 
+
+# blocked spmm
+add_executable(blocked_mm_bench blocked-mm-bench.cpp)
+
+target_include_directories(blocked_mm_bench
+        PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
+)
+
+# Link CUDA libraries
+target_link_libraries(blocked_mm_bench
+        PUBLIC
+        cudart
+        cublas
+        cusparse
+        benchmark::benchmark
+)
+
+
+
 # Set output directories
 set_target_properties(matrix_benchmark
         PROPERTIES
