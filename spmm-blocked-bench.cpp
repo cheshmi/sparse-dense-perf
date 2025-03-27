@@ -463,7 +463,7 @@ static void BM_BELL_CUSPARSE_MM(benchmark::State &state) {
     CHECK_CUDA(cudaMemcpy(d_B, h_B, k * n * sizeof(float), cudaMemcpyHostToDevice));
      CHECK_CUSPARSE(cusparseCreateDnMat(&matB, k, n, k, d_B,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
-    CHECK_CUDA(cudaMemcpy(d_C, h_C, k * n * sizeof(float), cudaMemcpyHostToDevice));
+    CHECK_CUDA(cudaMemcpy(d_C, h_C, m * n * sizeof(float), cudaMemcpyHostToDevice));
      CHECK_CUSPARSE(cusparseCreateDnMat(&matC, m, n, m, d_C,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
 
@@ -527,25 +527,25 @@ static void BM_BELL_CUSPARSE_MM(benchmark::State &state) {
 }
 
 // Define constants
-const int M = 1024;
+const int M = 2048;
 const int N = 64;
 const int K = 1024;
 const int iters = 100;
 
 // Register the function as a benchmark
 
-BENCHMARK(BM_cuBLAS_CUDA)->ArgsProduct({{M}, {M}, {64, 128, 256}, {4, 8, 16, 32}})
+BENCHMARK(BM_cuBLAS_CUDA)->ArgsProduct({{M}, {M}, {128, 256}, {4, 8, 16, 32, 64}})
 ->ArgNames({"M", "N", "K", "BlockSize"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
 
 
-BENCHMARK(BM_CUSPARSE_SPMM)->ArgsProduct({{M}, {M}, {64, 128, 256}, {4, 8, 16, 32}})
+BENCHMARK(BM_CUSPARSE_SPMM)->ArgsProduct({{M}, {M}, {128, 256}, {4, 8, 16, 32, 64}})
     ->ArgNames({"M", "N", "K", "BlockSize"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
 
-BENCHMARK(BM_BELL_CUSPARSE_MM)->ArgsProduct({{M}, {M}, {64, 128, 256}, {4, 8, 16, 32}})
+BENCHMARK(BM_BELL_CUSPARSE_MM)->ArgsProduct({{M}, {M}, {128, 256}, {4, 8, 16, 32, 64}})
     ->ArgNames({"M", "N", "K", "BlockSize"})->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);
 
 // NOTE: manual time is reported in ms and as real time (not CPU time)
-
+// NOTE: this benchmark is only for checkerboard pattern
 
 // Run the benchmark
 //BENCHMARK_MAIN();

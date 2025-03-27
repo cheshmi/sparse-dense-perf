@@ -48,15 +48,15 @@ link_directories(
 )
 
 # Create executable
-add_executable(matrix_benchmark matrix_benchmark.cpp)
+add_executable(spmm_benchmark spmm_benchmark.cpp)
 
 
-target_include_directories(matrix_benchmark
+target_include_directories(spmm_benchmark
         PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
 )
 
 # Link CUDA libraries
-target_link_libraries(matrix_benchmark
+target_link_libraries(spmm_benchmark
         PUBLIC
         cudart
         cublas
@@ -64,9 +64,15 @@ target_link_libraries(matrix_benchmark
         benchmark::benchmark
 )
 
+# Set output directories
+set_target_properties(spmm_benchmark
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
+
 
 # blocked spmm
-add_executable(blocked_mm_bench blocked-mm-bench.cpp)
+add_executable(blocked_mm_bench spmm-blocked-bench.cpp)
 
 target_include_directories(blocked_mm_bench
         PUBLIC ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
@@ -83,11 +89,6 @@ target_link_libraries(blocked_mm_bench
 
 
 
-# Set output directories
-set_target_properties(matrix_benchmark
-        PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-)
 
 ############# SpTRSV ################
 # Create executable
@@ -115,10 +116,12 @@ set_target_properties(sptrsv_benchmark
 
 # Optional: Enable some useful compiler warnings
 if(MSVC)
-    target_compile_options(matrix_benchmark PRIVATE /W4)
+    target_compile_options(spmm_benchmark PRIVATE /W4)
+    target_compile_options(blocked_mm_bench PRIVATE /W4)
     target_compile_options(sptrsv_benchmark PRIVATE /W4)
 else()
-    target_compile_options(matrix_benchmark PRIVATE -Wall -Wextra)
+    target_compile_options(spmm_benchmark PRIVATE -Wall -Wextra)
+    target_compile_options(blocked_mm_bench PRIVATE -Wall -Wextra)
     target_compile_options(sptrsv_benchmark PRIVATE -Wall -Wextra)
 endif()
 

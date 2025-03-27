@@ -273,8 +273,10 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
                                       d_csrRowPtr, d_csrColInd, d_csrVal,
                                       CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                       CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F));
+    CHECK_CUDA(cudaMemcpy(d_B, h_B, k * n * sizeof(float), cudaMemcpyHostToDevice));
      CHECK_CUSPARSE(cusparseCreateDnMat(&matB, k, n, k, d_B,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
+    CHECK_CUDA(cudaMemcpy(d_C, h_C, m * n * sizeof(float), cudaMemcpyHostToDevice));
      CHECK_CUSPARSE(cusparseCreateDnMat(&matC, m, n, m, d_C,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
 
