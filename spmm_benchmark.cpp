@@ -181,7 +181,7 @@ static void BM_cuBLAS_CUDA(benchmark::State &state) {
         float iteration_time_ms = 0.0f;
         MeasureGEMMPerformance(cublas_handle, m, n, k, d_A, d_B, d_C,
                                alpha, beta, iteration_time_ms);
-        state.SetIterationTime(iteration_time_ms);
+        state.SetIterationTime(iteration_time_ms * 1e-3);
 
 
     }
@@ -273,8 +273,10 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
                                       d_csrRowPtr, d_csrColInd, d_csrVal,
                                       CUSPARSE_INDEX_32I, CUSPARSE_INDEX_32I,
                                       CUSPARSE_INDEX_BASE_ZERO, CUDA_R_32F));
+    CHECK_CUDA(cudaMemcpy(d_B, h_B, k * n * sizeof(float), cudaMemcpyHostToDevice));
      CHECK_CUSPARSE(cusparseCreateDnMat(&matB, k, n, k, d_B,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
+    CHECK_CUDA(cudaMemcpy(d_C, h_C, m * n * sizeof(float), cudaMemcpyHostToDevice));
      CHECK_CUSPARSE(cusparseCreateDnMat(&matC, m, n, m, d_C,
                                         CUDA_R_32F, CUSPARSE_ORDER_COL));
 
@@ -310,7 +312,7 @@ static void BM_CUSPARSE_SPMM(benchmark::State &state) {
         cudaEventRecord(stop, 0);
         cudaEventSynchronize(stop);
         cudaEventElapsedTime(&iteration_time_ms, start, stop);
-        state.SetIterationTime(iteration_time_ms);
+        state.SetIterationTime(iteration_time_ms*1e-3);
         cudaEventDestroy(start);
         cudaEventDestroy(stop);
     }
