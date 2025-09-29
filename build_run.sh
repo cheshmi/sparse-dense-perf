@@ -19,5 +19,5 @@ make -j8
 
 
 # Run the benchmark
-./bin/matrix_benchmark
-./bin/matrix_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results.json
+./bin/spmm_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_spmm_benchmark.json
+./bin/sptrsv_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_sptrsv_benchmark.json
