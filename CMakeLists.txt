@@ -4,6 +4,8 @@ project(matrix_benchmark LANGUAGES CXX CUDA)
 ## Set C++ standard
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CUDA_ARCHITECTURES 60;70;75;80;86)
+
 
 
 # fetch google benchmark
