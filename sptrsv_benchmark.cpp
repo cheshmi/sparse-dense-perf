@@ -75,7 +75,7 @@
 }
 
 
-int main1(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
     // Host problem definition
     // const int A_num_rows      = 4;
     // const int A_num_cols      = 4;
@@ -329,13 +329,13 @@ static void BM_CUSPARSE_SPSV(benchmark::State& state) {
 
 // Run the benchmark
 //BENCHMARK_MAIN();
-int iters = 50;
-BENCHMARK(BM_CUSPARSE_SPSV)->DenseRange(0, 40)->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);;
+// int iters = 50;
+// BENCHMARK(BM_CUSPARSE_SPSV)->DenseRange(0, 40)->Unit(benchmark::kMillisecond)->UseManualTime()->Iterations(iters);;
 
-int main(int argc, char** argv) {
-    std::string base_matrix_path = "/home/kazem/UFDB/";
-    get_mat_list(base_matrix_path+"/spd_list.txt", base_matrix_path, mat_list);
-    benchmark::Initialize(&argc, argv);
-    benchmark::RunSpecifiedBenchmarks();
-    return 0;
-}
+// int main(int argc, char** argv) {
+//     std::string base_matrix_path = "/home/kazem/UFDB/";
+//     get_mat_list(base_matrix_path+"/spd_list.txt", base_matrix_path, mat_list);
+//     benchmark::Initialize(&argc, argv);
+//     benchmark::RunSpecifiedBenchmarks();
+//     return 0;
+// }
