@@ -25,5 +25,5 @@ make -j8
 
 
 # Run the benchmark with profiling
-ncu --target-processes all --set full -o ./profiling_out_put_spmm_benchmark ./example_cuda/spmm_demo_gpu ./bin/spmm_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_spmm_benchmark.json
-ncu --target-processes all --set full -o ./profiling_out_put_blocked_mm_bench ./example_cuda/spmm_demo_gpu ./blocked_mm_bench  --benchmark_report_aggregates_only=true --benchmark_format=json > results_blocked_mm_bench.json
+ncu --target-processes all --set full -o ./profiling_out_put_spmm_benchmark  ./bin/spmm_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_spmm_benchmark_with_profiling.json
+ncu --target-processes all --set full -o ./profiling_out_put_blocked_mm_bench ./blocked_mm_bench  --benchmark_report_aggregates_only=true --benchmark_format=json > results_blocked_mm_bench_with_profiling.json
