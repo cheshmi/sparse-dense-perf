@@ -5,7 +5,7 @@
 #SBATCH --job-name="project"
 #SBATCH --nodes=1
 #SBATCH --output="project.%j.%N.out"
-#SBATCH -t 10:00:00
+#SBATCH -t 24:00:00
 ##################### SLURM (do not change) ^  #####################
 
 # Above are SLURM directives for job scheduling on a cluster,
@@ -33,11 +33,11 @@ make -j8
 
 
 #Run the benchmark with profiling on nsys
-nsys profile -t cuda,nvtx,osrt \
+nsys profile -t cuda \
              --output ./profiling_nsys_spmm_benchmark \
              ./bin/spmm_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_spmm_benchmark_nsys.json
 
-nsys profile -t cuda,nvtx,osrt \
+nsys profile -t cuda \
              --output ./profiling_nsys_blocked_mm_bench \
              ./blocked_mm_bench  --benchmark_report_aggregates_only=true --benchmark_format=json > results_blocked_mm_bench_nsys.json
 
