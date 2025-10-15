@@ -24,16 +24,10 @@ make -j8
 ./blocked_mm_bench  --benchmark_report_aggregates_only=true --benchmark_format=json > results_blocked_mm_bench.json
 
 
-#Run the benchmark with profiling on nsys
-# nsys profile -t cuda \
-#              --output ./profiling_nsys_spmm_benchmark \
-#              ./bin/spmm_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_spmm_benchmark_nsys.json
-
-# nsys profile -t cuda \
-#              --output ./profiling_nsys_blocked_mm_bench \
-#              ./blocked_mm_bench  --benchmark_report_aggregates_only=true --benchmark_format=json > results_blocked_mm_bench_nsys.json
-
 
 # Run the benchmark with profiling on nsight compute
 ncu --target-processes all --set full -o ./profiling_out_put_spmm_benchmark  ./bin/spmm_benchmark  --benchmark_report_aggregates_only=true --benchmark_format=json > results_spmm_benchmark_with_profiling.json
 ncu --target-processes all --set full -o ./profiling_out_put_blocked_mm_bench ./blocked_mm_bench  --benchmark_report_aggregates_only=true --benchmark_format=json > results_blocked_mm_bench_with_profiling.json
+
+ncu --import profiling_out_put_spmm_benchmark.ncu-rep --page raw --csv > profiling_output_spmm.csv
+ncu --import profiling_out_put_blocked_mm_bench.ncu-rep --page raw --csv > profiling_output_blocked.csv
